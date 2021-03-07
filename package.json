@@ -36,6 +36,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
     "core-js": "^3.6.4",
     "html-webpack-plugin": "^4.5.1",
     "path-to-regexp": "^6.2.0",
