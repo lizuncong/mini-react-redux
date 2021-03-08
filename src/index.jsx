@@ -25,16 +25,16 @@ export default class App extends Component{
     return (
         <Provider value={contextValue}>
           <div
-            onClick={() => {
-              this.setState({
-                count: count + 1,
-              })
-            }}
+              onClick={() => {
+                this.setState({
+                  count: count + 1,
+                })
+              }}
           >
-            click me
+            root click me
           </div>
           <Header />
-          <Main />
+          <Main count={count} />
         </Provider>
     )
   }
