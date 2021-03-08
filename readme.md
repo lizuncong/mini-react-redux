@@ -47,3 +47,5 @@ class Header extends PureComponent{
 
 也就是说，即使没有使用`Provider`提供`context`，只要组件中订阅了`context`，那么组件都可以读到默认的`defaultValue`。
 
+#### Context.Provider
+多个
