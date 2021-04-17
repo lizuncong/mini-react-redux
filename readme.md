@@ -94,4 +94,11 @@ class Header extends Component{
     + 这种方式只能订阅单一的context。
 
 - Context.Consumer
-    + 
+    + 需要一个函数作为子元素，这个函数接收当前的context值，并返回一个React节点。
+    + 支持消费多个context
+```jsx harmony
+<MyContext.Consumer>
+  {value => /* 基于 context 值进行渲染*/}
+</MyContext.Consumer>
+
+```
