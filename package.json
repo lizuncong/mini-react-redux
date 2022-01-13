@@ -4,7 +4,8 @@
   "description": "react redux源码",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config ./build/webpack.config.js",
+    "build": "webpack --config ./build/webpack.prod.js",
+    "start": "webpack-dev-server --config ./build/webpack.dev.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,24 +23,18 @@
     "@babel/core": "^7.8.7",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.10.1",
-    "autoprefixer": "^9.7.3",
     "babel-loader": "^8.0.6",
-    "css-loader": "^3.4.2",
-    "less": "^3.11.1",
-    "less-loader": "^5.0.0",
-    "postcss-loader": "^3.0.0",
-    "style-loader": "0.23.1",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "core-js": "^3.6.4",
     "html-webpack-plugin": "^4.5.1",
-    "path-to-regexp": "^6.2.0",
-    "react": "0.0.0-experimental-5027eb465",
-    "react-dom": "0.0.0-experimental-5027eb465",
-    "react-router-dom": "^5.2.0"
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   }
 }

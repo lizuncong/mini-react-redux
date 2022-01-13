@@ -1,9 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const lessRegex = /\.less$/;
-const lessModuleRegex = /\.module\.less$/;
-
 module.exports = {
   mode: 'development',
   devtool: 'cheap-module-inline-source-map',
@@ -49,51 +46,6 @@ module.exports = {
           },
         ],
       },
-      {
-        test: lessRegex,
-        exclude: lessModuleRegex,
-        use:  [
-          'style-loader',
-          {
-            loader: require.resolve('css-loader'),
-            options:  {
-              importLoaders: 2,
-              sourceMap: false,
-            },
-          },
-          {
-            loader: 'postcss-loader',
-          },
-          {
-            loader: 'less-loader',
-            options: { sourceMap: true },
-          }
-        ],
-        sideEffects: true,
-      },
-      {
-        test: lessModuleRegex,
-        use: [
-          'style-loader',
-          {
-            loader: require.resolve('css-loader'),
-            options:    {
-              importLoaders: 2,
-              sourceMap: false,
-              modules: {
-                localIdentName: '[path][name]__[local]',
-              },
-            },
-          },
-          {
-            loader: 'postcss-loader',
-          },
-          {
-            loader: 'less-loader',
-            options: { sourceMap: true },
-          }
-        ],
-      },
     ]
   },
   plugins: [
@@ -101,15 +53,5 @@ module.exports = {
       index: 'index.html',
       template: path.resolve(__dirname, '../template.html'),
     }),
-  ],
-  devServer: {
-    host: '0.0.0.0',
-    port: '8088',
-    contentBase: path.resolve(__dirname, '../dist'),
-    // hot: true,
-    headers: { 'Access-Control-Allow-Origin': '*' },
-    overlay: {
-      errors: true,
-    },
-  }
+  ]
 }

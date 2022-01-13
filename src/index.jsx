@@ -1,9 +1,5 @@
 import React, { Component, useState } from 'react';
 import ReactDOM, { render } from 'react-dom';
-import Header from './Header';
-import Main from './Main';
-import { Provider } from './context';
-import styles from './index.module.less';
 
 const HeaderHook = () => {
   const [num, addNum] = useState(0);
@@ -36,7 +32,7 @@ export default class App extends Component{
 
   render(){
     const { count } = this.state;
-    const len = 3000;
+    const len = 30;
     return (
         <>
           <div>
@@ -66,6 +62,5 @@ export default class App extends Component{
 }
 
 const root = document.getElementById('root');
-// render(<App />, root)
-ReactDOM.unstable_createRoot(root).render(<App/>);
+render(<App />, root)
 
