@@ -1,3 +1,16 @@
+### React共享数据需要解决的问题
+- 如何在组件之间共享数据，而不用通过组件树逐层传递props
+- 共享数据更新，如何通知组件
+
+### 理论知识
+主要是react提供的context api
+- React.createContext
+- Context.Provider
+- Class.contextType
+- Context.Consumer
+- Context.displayName
+
+
 ### context
 #### 创建context
 ```jsx harmony
