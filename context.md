@@ -5,6 +5,12 @@ react提供的context api
 - Context.Consumer
 - Class.contextType
 - Context.displayName
+- Hook相关的: useContext
+
+其实，这些api按分类可以划分如下：
+- 创建context: React.createContext
+- 提供context值: Context.Provider
+- 订阅context值：Context.Consumer、Class.contextType、如果是函数组件，也可以使用useContext
 
 
 #### React.createContext
@@ -38,3 +44,5 @@ react提供了三个订阅 `context` 的api
 ```javascript
 const value = useContext(MyContext);
 ```
+
+目前 `useContext` 是 `react` 官方提供的唯一一个与 `context` 有关的 hook api
