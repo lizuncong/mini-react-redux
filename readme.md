@@ -1,117 +1,204 @@
+### 目录划分
+- redux目录。该目录下是手写redux源码实现的
+- react-redux目录。该目录是手写react redux源码实现的
+
 ### React共享数据需要解决的问题
 - 如何在组件之间共享数据，而不用通过组件树逐层传递props
 - 共享数据更新，如何通知组件
 
 ### 理论知识
-主要是react提供的context api
-- React.createContext
-- Context.Provider
-- Class.contextType
-- Context.Consumer
-- Context.displayName
+- [React.context理论知识](./react.context理论知识.md)
+- Redux基础知识
+
+### Redux
+redux只是一种架构模式，它不关注我们到底用什么库，可以把它应用到React和Vue中。
 
 
-### context
-#### 创建context
-```jsx harmony
-import React from 'react';
-const defaultValue = { color: 'red' }
-const ThemeContext = React.createContext(defaultValue);
-const { Provider, Consumer } = ThemeContext;
-class App extends Component{
-  constructor(props){
-    super(props);
-    this.state = {
-      color: 'blue',
+redux中比较重要的几个概念：Reducers，Actions，Store
+- reducers是一个纯函数，接收一个state和一个action对象，然后根据action.type更新state并返回一个新的state。
+- actions是一个对象，包含一个type属性和一个payload属性。
+- Store是createStore方法的返回值，提供了getState方法获取当前最新的state。dispatch方法触发state更新。subscribe方法订阅state状态变化的回调。
+
+### react redux
+react redux无非就是将context和redux架构结合实现的react共享状态管理方法。
+
+react redux最主要的就是提供了connect方法，Provider组件将context从react组件中剥离出来，使得我们所写的组件能够和context解耦。
+
+react redux无非就是将context和redux思想结合起来，使得context能和我们的业务组件解耦并且方便状态管理。
+
+react redux最主要的两个API就是context方法和Provider组件。
+
+其中，Provider组件比较简单，接收一个store对象。这个store对象就是redux的createStore方法的返回值，包含getState，dispatch，subscribe方法。
+然后Provider组件创建一个context，包含store的值，并在render方法原封不动的渲染子组件。
+
+connect方法接收一个mapStateToProps和一个mapDispatchToProps方法。并返回一个函数，这个函数接收一个组件，并且返回值是一个高阶组件。
+这个高阶组件主要做了以下几件事：
+
+订阅context，读取store对象，调用store.subscribe监听状态修改，然后执行更新操作。更新操作里面调用mapStateToProps以及mapDispatchToProps
+方法，并将两个方法的返回值当作Props传递给包裹的组件。
+
+### redux的使用流程
+```js
+// 定一个 reducer
+function reducer (state, action) {
+  /* 初始化 state 和 switch case */
+}
+// 生成 store
+const store = createStore(reducer)
+// 监听数据变化重新渲染页面
+store.subscribe(() => renderApp(store.getState()))
+// 首次渲染页面
+renderApp(store.getState()) 
+// 后面可以随意 dispatch 了，页面自动更新
+store.dispatch()
+```
+
+
+### 对redux和react redux的理解
+1. 先从redux说起
+
+redux是一种架构思想，与框架无关。redux最主要的三个概念就是Store，Reducers，Actions。
+
+Reducers就是一个纯函数，接收一个state参数和一个action对象。然后根据action.type去修改state，并返回一个全新的state对象。
+
+Actions就是一个对象，包含type和payload属性。决定了如何修改state对象的值。
+
+Store就是createStore方法的返回值，包含getState，dispatch，subscribe方法。
+
+getState方法主要是用于获取当前的state。
+
+dispatch方法做的事情也比较简单，执行reducers函数获取最新的state，并且遍历listeners里面的回调，说明数据修改了。
+
+subscribe主要用于监听数据的修改。
+
+
+2. 再说react redux
+
+react redux无非就是将context和redux思想结合起来，使得context能和我们的业务组件解耦并且方便状态管理。
+
+react redux最主要的两个API就是context方法和Provider组件。
+
+其中，Provider组件比较简单，接收一个store对象。这个store对象就是redux的createStore方法的返回值，包含getState，dispatch，subscribe方法。
+然后Provider组件创建一个context，包含store的值，并在render方法原封不动的渲染子组件。
+
+connect方法接收一个mapStateToProps和一个mapDispatchToProps方法。并返回一个函数，这个函数接收一个组件，并且返回值是一个高阶组件。
+这个高阶组件主要做了以下几件事：
+
+订阅context，读取store对象，调用store.subscribe监听状态修改，然后执行更新操作。更新操作里面调用mapStateToProps以及mapDispatchToProps
+方法，并将两个方法的返回值当作Props传递给包裹的组件。
+
+
+
+### 简单版本的实现：
+
+```jsx
+let appState = {
+  title: {
+    text: 'React.js 小书',
+    color: 'red',
+  },
+  content: {
+    text: 'React.js 小书内容',
+    color: 'blue'
+  }
+}
+
+
+function dispatch (action) {
+  switch (action.type) {
+    case 'UPDATE_TITLE_TEXT':
+      appState.title.text = action.text
+      break
+    case 'UPDATE_TITLE_COLOR':
+      appState.title.color = action.color
+      break
+    default:
+      break
+  }
+}
+
+
+function createStore (reducer) {
+  let state = null
+  const listeners = []
+  const subscribe = (listener) => listeners.push(listener)
+  const getState = () => state
+  const dispatch = (action) => {
+    state = reducer(state, action)
+    listeners.forEach((listener) => listener())
+  }
+  dispatch({}) // 初始化 state
+  return { getState, dispatch, subscribe }
+}
+
+const store = createStore(appState, stateChanger)
+let oldState = store.getState() // 缓存旧的 state
+store.subscribe(() => {
+  const newState = store.getState() // 数据可能变化，获取新的 state
+  renderApp(newState, oldState) // 把新旧的 state 传进去渲染
+  oldState = newState // 渲染完以后，新的 newState 变成了旧的 oldState，等待下一次数据变化重新渲染
+})
+
+
+export const connect = (mapStateToProps, mapDispatchToProps) => (WrappedComponent) => {
+  class Connect extends Component {
+    static contextTypes = {
+      store: PropTypes.object
+    }
+    constructor () {
+      super()
+      this.state = {
+        allProps: {}
+      }
+    }
+    componentWillMount () {
+      const { store } = this.context
+      this._updateProps()
+      store.subscribe(() => this._updateProps())
+    }
+    _updateProps () {
+      const { store } = this.context
+      let stateProps = mapStateToProps
+          ? mapStateToProps(store.getState(), this.props)
+          : {} // 防止 mapStateToProps 没有传入
+      let dispatchProps = mapDispatchToProps
+          ? mapDispatchToProps(store.dispatch, this.props)
+          : {} // 防止 mapDispatchToProps 没有传入
+      this.setState({
+        allProps: {
+          ...stateProps,
+          ...dispatchProps,
+          ...this.props
+        }
+      })
+    }
+    render () {
+      return <WrappedComponent {...this.state.allProps} />
     }
   }
-
-  render(){
-    return (
-        <Provider value={{ color: this.state.color }}>
-          <div
-            onClick={() => {
-              this.setState({
-                color: color === 'red' ? 'green' : 'red',
-              })
-            }}
-          >
-            click me
-          </div>
-          <Header />
-        </Provider>
-    )
-  }
-}
-class Header extends PureComponent{
-  static contextType = ThemeContext;
-
-  render(){
-    return (
-        <div>
-          main: {this.context.color}
-        </div>
-    )
-  }
+  return Connect
 }
 
-```
-组件会从组件树中离自身最近的那个匹配的`Provider`中读取到当前的`context`值。只有当组件所处的树中没有匹配到`Provider`时，
-`React.createContext(defaultValue)`提供的`defaultValue`才生效。
-
-也就是说，即使没有使用`Provider`提供`context`，只要组件中订阅了`context`，那么组件都可以读到默认的`defaultValue`。
-比如
-```jsx harmony
-// 没有提供value，因此header组件里面读取到的context是默认值defaultValue
-<Provider>
-  <Header />
-</Provider>
-```
-
-#### 多个Provider可以嵌套使用，里层的会覆盖外层的数据
-#### 重点！！！
-当Provider的value值发生变化时，它内部的所有消费组件都会重新渲染。Provider及其内部consumer组件都不受制于
-shouldComponentUpdate函数(这点很重要)。即使是consumer组件的父组件使用了shouldComponentUpdate跳过了渲染，consumer组件依然会重新渲染。
-```jsx harmony
-class Header extends Component{
-
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return false;
+export class Provider extends Component {
+  static propTypes = {
+    store: PropTypes.object,
+    children: PropTypes.any
   }
-
-  render(){
-    console.log('main..render')
+  static childContextTypes = {
+    store: PropTypes.object
+  }
+  getChildContext () {
+    return {
+      store: this.props.store
+    }
+  }
+  render () {
     return (
-        <MyContext.Consumer>
-          {
-            context => (
-                <div>
-                  <div>{JSON.stringify(context)}</div>
-                </div>
-            )
-          }
-        </MyContext.Consumer>
+        <div>{this.props.children}</div>
     )
   }
 }
 ```
-这个demo中，Header组件shouldComponentUpdate方法永远返回false，这在普通组件中，Header永远都不会重渲染。
-但由于Header订阅了context，因此当Provider的value发生变化时，Header都会忽略掉shouldComponentUpdate而强制重渲染！！！！！
 
-#### React使用了与Object.is相同的算法来比较Provider的value的新旧值。
 
-#### 订阅context的两种方法： 1.Class.contextType 2.Context.Consumer组件
-- Class.contextType
-    + 可以使用Header.contextType = React.createContext()订阅context。如果是es6，可以在Header类中使用static contextType = React.createContext()订阅
-    + 使用this.context可以访问到Provider提供的value或者React.createContext(defaultValue)中的defaultValue。
-    + 这种方式只能订阅单一的context。
 
-- Context.Consumer
-    + 需要一个函数作为子元素，这个函数接收当前的context值，并返回一个React节点。
-    + 支持消费多个context
-```jsx harmony
-<MyContext.Consumer>
-  {value => /* 基于 context 值进行渲染*/}
-</MyContext.Consumer>
-
-```
