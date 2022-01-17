@@ -37,7 +37,7 @@ connect方法接收一个mapStateToProps和一个mapDispatchToProps方法。并�
 订阅context，读取store对象，调用store.subscribe监听状态修改，然后执行更新操作。更新操作里面调用mapStateToProps以及mapDispatchToProps
 方法，并将两个方法的返回值当作Props传递给包裹的组件。
 
-### redux的使用流程
+### redux的使用
 ```js
 // 定一个 reducer
 function reducer (state, action) {
@@ -54,42 +54,7 @@ store.dispatch()
 ```
 
 
-### 对redux和react redux的理解
-1. 先从redux说起
-
-redux是一种架构思想，与框架无关。redux最主要的三个概念就是Store，Reducers，Actions。
-
-Reducers就是一个纯函数，接收一个state参数和一个action对象。然后根据action.type去修改state，并返回一个全新的state对象。
-
-Actions就是一个对象，包含type和payload属性。决定了如何修改state对象的值。
-
-Store就是createStore方法的返回值，包含getState，dispatch，subscribe方法。
-
-getState方法主要是用于获取当前的state。
-
-dispatch方法做的事情也比较简单，执行reducers函数获取最新的state，并且遍历listeners里面的回调，说明数据修改了。
-
-subscribe主要用于监听数据的修改。
-
-
-2. 再说react redux
-
-react redux无非就是将context和redux思想结合起来，使得context能和我们的业务组件解耦并且方便状态管理。
-
-react redux最主要的两个API就是context方法和Provider组件。
-
-其中，Provider组件比较简单，接收一个store对象。这个store对象就是redux的createStore方法的返回值，包含getState，dispatch，subscribe方法。
-然后Provider组件创建一个context，包含store的值，并在render方法原封不动的渲染子组件。
-
-connect方法接收一个mapStateToProps和一个mapDispatchToProps方法。并返回一个函数，这个函数接收一个组件，并且返回值是一个高阶组件。
-这个高阶组件主要做了以下几件事：
-
-订阅context，读取store对象，调用store.subscribe监听状态修改，然后执行更新操作。更新操作里面调用mapStateToProps以及mapDispatchToProps
-方法，并将两个方法的返回值当作Props传递给包裹的组件。
-
-
-
-### 简单版本的实现：
+### 简单版本的Redux及React Redux实现：
 
 ```jsx
 let appState = {
