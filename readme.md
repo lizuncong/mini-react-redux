@@ -39,6 +39,9 @@ connect方法接收一个mapStateToProps和一个mapDispatchToProps方法。并�
 
 ### redux的使用
 ```js
+/**
+ * reducers是个纯函数，函数类型：(state, action) => newState
+ * */
 function counterReducer(state = { value: 0 }, action) {
   switch (action.type) {
     case 'counter/incremented':
@@ -49,6 +52,8 @@ function counterReducer(state = { value: 0 }, action) {
       return state
   }
 }
+
+//createStore返回值{ subscribe, dispatch, getState }.
 let store = createStore(counterReducer)
 
 store.subscribe(() => console.log(store.getState()))

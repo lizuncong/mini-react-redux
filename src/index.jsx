@@ -1,46 +1,22 @@
-import React, { Component, useState } from 'react';
-import ReactDOM, { render } from 'react-dom';
+import { createStore } from 'redux'
 
-const ThemeContext = React.createContext('light');
-
-class Header extends Component{
-  render(){
-    console.log('header...', this.context)
-    return (
-        <ThemeContext.Consumer>
-          {
-            value => {
-              return (
-                  <div>
-                    consumer: {value}
-                  </div>
-              )
-            }
-          }
-        </ThemeContext.Consumer>
-    )
+/**
+ * reducers是个纯函数，函数类型：(state, action) => newState
+ * */
+function counterReducer(state = { value: 0 }, action) {
+  switch (action.type) {
+    case 'counter/incremented':
+      return { value: state.value + 1 }
+    case 'counter/decremented':
+      return { value: state.value - 1 }
+    default:
+      return state
   }
 }
 
-Header.contextType = ThemeContext
+// createStore返回值{ subscribe, dispatch, getState }.
+let store = createStore(counterReducer)
 
 
-export default class App extends Component{
-  constructor(props){
-    super(props);
-  }
-
-  render(){
-    return (
-        <ThemeContext.Provider value="dark">
-          <Header />
-        </ThemeContext.Provider>
-    );
-  }
-}
-
-
-
-const root = document.getElementById('root');
-render(<App />, root)
+store.subscribe(() => console.log(store.getState()))
 
