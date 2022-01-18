@@ -1,6 +1,6 @@
 ### 目录划分
-- redux目录。该目录下是手写redux源码实现的
-- react-redux目录。该目录是手写react redux源码实现的
+- redux目录。该目录下是手写redux源码实现的。对应的官方Redux版本：4.0.0
+- react-redux目录。该目录是手写react redux源码实现的。对应的官方React Redux版本：7.2.6
 
 ### React共享数据需要解决的问题
 - 如何在组件之间共享数据，而不用通过组件树逐层传递props
@@ -39,50 +39,27 @@ connect方法接收一个mapStateToProps和一个mapDispatchToProps方法。并�
 
 ### redux的使用
 ```js
-// 定一个 reducer
-function reducer (state, action) {
-  /* 初始化 state 和 switch case */
+function counterReducer(state = { value: 0 }, action) {
+  switch (action.type) {
+    case 'counter/incremented':
+      return { value: state.value + 1 }
+    case 'counter/decremented':
+      return { value: state.value - 1 }
+    default:
+      return state
+  }
 }
-// 生成 store
-const store = createStore(reducer)
-// 监听数据变化重新渲染页面
-store.subscribe(() => renderApp(store.getState()))
-// 首次渲染页面
-renderApp(store.getState()) 
-// 后面可以随意 dispatch 了，页面自动更新
-store.dispatch()
+let store = createStore(counterReducer)
+
+store.subscribe(() => console.log(store.getState()))
+
+store.dispatch({ type: 'counter/incremented' })
 ```
 
 
 ### 简单版本的Redux及React Redux实现：
-
-```jsx
-let appState = {
-  title: {
-    text: 'React.js 小书',
-    color: 'red',
-  },
-  content: {
-    text: 'React.js 小书内容',
-    color: 'blue'
-  }
-}
-
-
-function dispatch (action) {
-  switch (action.type) {
-    case 'UPDATE_TITLE_TEXT':
-      appState.title.text = action.text
-      break
-    case 'UPDATE_TITLE_COLOR':
-      appState.title.color = action.color
-      break
-    default:
-      break
-  }
-}
-
-
+简易版的Redux，主要实现Redux的 `createStore` 方法
+```js
 function createStore (reducer) {
   let state = null
   const listeners = []
@@ -91,27 +68,32 @@ function createStore (reducer) {
   const dispatch = (action) => {
     state = reducer(state, action)
     listeners.forEach((listener) => listener())
+    return action;
   }
   dispatch({}) // 初始化 state
   return { getState, dispatch, subscribe }
 }
+```
 
-const store = createStore(appState, stateChanger)
-let oldState = store.getState() // 缓存旧的 state
-store.subscribe(() => {
-  const newState = store.getState() // 数据可能变化，获取新的 state
-  renderApp(newState, oldState) // 把新旧的 state 传进去渲染
-  oldState = newState // 渲染完以后，新的 newState 变成了旧的 oldState，等待下一次数据变化重新渲染
-})
+简易版的React Redux
+```jsx harmony
+const ReactReduxContext = React.createContext(null)
 
+class Provider extends React.Component {
 
-export const connect = (mapStateToProps, mapDispatchToProps) => (WrappedComponent) => {
-  class Connect extends Component {
-    static contextTypes = {
-      store: PropTypes.object
-    }
-    constructor () {
-      super()
+  render () {
+    return (
+        <ReactReduxContext.Provider value={{store: this.props.store}}>
+          {this.props.children}
+        </ReactReduxContext.Provider>
+    )
+  }
+}
+
+const connect = (mapStateToProps, mapDispatchToProps) => (WrappedComponent) => {
+  class Connect extends React.Component {
+    constructor (props) {
+      super(props)
       this.state = {
         allProps: {}
       }
@@ -141,27 +123,8 @@ export const connect = (mapStateToProps, mapDispatchToProps) => (WrappedComponen
       return <WrappedComponent {...this.state.allProps} />
     }
   }
+  Connect.contextType = ReactReduxContext
   return Connect
-}
-
-export class Provider extends Component {
-  static propTypes = {
-    store: PropTypes.object,
-    children: PropTypes.any
-  }
-  static childContextTypes = {
-    store: PropTypes.object
-  }
-  getChildContext () {
-    return {
-      store: this.props.store
-    }
-  }
-  render () {
-    return (
-        <div>{this.props.children}</div>
-    )
-  }
 }
 ```
 
