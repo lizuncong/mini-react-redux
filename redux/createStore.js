@@ -47,3 +47,28 @@ const createStore = (reducer, preloadedState, enhancer) => {
 }
 
 export default createStore
+
+
+// 测试用例
+// function counterReducer(state = { value: 0 }, action) {
+//   switch (action.type) {
+//     case 'counter/incremented':
+//       return { value: state.value + 1 }
+//     case 'counter/decremented':
+//       return { value: state.value - 1 }
+//     default:
+//       return state
+//   }
+// }
+//
+//
+// // createStore返回值{ subscribe, dispatch, getState }.
+// let store = createStore(counterReducer)
+//
+// store.subscribe(() => console.log('test===1',store.getState()))
+// store.subscribe(() => console.log('test===', store.getState()))
+//
+//
+// store.dispatch({ type: 'counter/incremented' })
+// store.dispatch({ type: 'counter/incremented' })
+// store.dispatch({ type: 'counter/incremented' })

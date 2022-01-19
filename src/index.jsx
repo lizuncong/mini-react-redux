@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from '../redux'
+import { createStore, combineReducers, applyMiddleware } from '../redux'
 
 // function logger({ getState }) {
 //   return next => action => {
@@ -18,7 +18,7 @@ import { createStore, applyMiddleware } from '../redux'
 /**
  * reducers是个纯函数，函数类型：(state, action) => newState
  * */
-function counterReducer(state = { value: 0 }, action) {
+function counter(state = { value: 0 }, action) {
   switch (action.type) {
     case 'counter/incremented':
       return { value: state.value + 1 }
@@ -28,17 +28,29 @@ function counterReducer(state = { value: 0 }, action) {
       return state
   }
 }
+function todos(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return state.concat([action.text])
+    default:
+      return state
+  }
+}
+
+const rootReducer = combineReducers({
+  counter,
+  todos
+})
 
 // createStore返回值{ subscribe, dispatch, getState }.
-let store = createStore(counterReducer)
+let store = createStore(rootReducer)
 
 store.subscribe(() => console.log('test===1',store.getState()))
-store.subscribe(() => console.log('test===', store.getState()))
 
 
 store.dispatch({ type: 'counter/incremented' })
-store.dispatch({ type: 'counter/incremented' })
-store.dispatch({ type: 'counter/incremented' })
+store.dispatch({ type: 'ADD_TODO', text: 'redux' })
+
 
 
 

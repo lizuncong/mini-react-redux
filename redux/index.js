@@ -1,6 +1,7 @@
 import {
   createStore,
   applyMiddleware,
+  combineReducers
 } from 'redux'
 
 // createStore(reducer, [preloadedState], [enhancer])
@@ -13,5 +14,6 @@ import {
 
 export {
   createStore,
-  applyMiddleware
+  applyMiddleware,
+  combineReducers
 }
