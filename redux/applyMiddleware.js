@@ -1,29 +1,49 @@
-function applyMiddleware() {
-  for (var _len = arguments.length, middlewares = new Array(_len), _key = 0; _key < _len; _key++) {
-    middlewares[_key] = arguments[_key];
+/**
+ * Composes single-argument functions from right to left. The rightmost
+ * function can take multiple arguments as it provides the signature for
+ * the resulting composite function.
+ *
+ * @param {...Function} funcs The functions to compose.
+ * @returns {Function} A function obtained by composing the argument functions
+ * from right to left. For example, compose(f, g, h) is identical to doing
+ * (...args) => f(g(h(...args))).
+ */
+
+export default function compose(...funcs) {
+  if (funcs.length === 0) {
+    return (arg) => arg
   }
 
-  return function (createStore) {
-    return function () {
-      var store = createStore.apply(void 0, arguments);
+  if (funcs.length === 1) {
+    return funcs[0]
+  }
 
-      var _dispatch = function dispatch() {
-        throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(15) : 'Dispatching while constructing your middleware is not allowed. ' + 'Other middleware would not be applied to this dispatch.');
-      };
-
-      var middlewareAPI = {
-        getState: store.getState,
-        dispatch: function dispatch() {
-          return _dispatch.apply(void 0, arguments);
-        }
-      };
-      var chain = middlewares.map(function (middleware) {
-        return middleware(middlewareAPI);
-      });
-      _dispatch = compose.apply(void 0, chain)(store.dispatch);
-      return _objectSpread(_objectSpread({}, store), {}, {
-        dispatch: _dispatch
-      });
-    };
-  };
+  return funcs.reduce((a, b) => (...args) => a(b(...args)))
 }
+
+function applyMiddleware(...middlewares) {
+  return (createStore) => (reducer, preloadedState) => {
+    const store = createStore(reducer, preloadedState)
+    let dispatch = () => {
+      throw new Error(
+          'Dispatching while constructing your middleware is not allowed. ' +
+          'Other middleware would not be applied to this dispatch.'
+      )
+    }
+
+    const middlewareAPI = {
+      getState: store.getState,
+      dispatch: (...args) => dispatch(...args),
+    }
+    const chain = middlewares.map((middleware) => middleware(middlewareAPI))
+    dispatch = compose(...chain)(store.dispatch)
+
+    return {
+      ...store,
+      dispatch,
+    }
+  }
+}
+
+
+export default applyMiddleware
