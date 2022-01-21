@@ -133,5 +133,119 @@ const connect = (mapStateToProps, mapDispatchToProps) => (WrappedComponent) => {
 }
 ```
 
+### applyMiddleware的实现
+我认为`applyMiddleware`是整个redux源码中比较有意思的。这个和koa的洋葱圈模型一模一样。
 
+先来看下用法，具体用法[点击这里](./test/applyMiddleware.js)查看
+```js
+let store = createStore(counter, undefined, applyMiddleware(logger, logger2, logger3))
+```
+看下createStore源码有这么一段
+```js
+// 记住 createStore的返回值一定是个包含dispatch，subscribe，getState的对象
+const createStore = (reducer, preloadedState, enhancer) => {
+  .....  
+  if(enhancer){
+    return enhancer(createStore)(reducer, preloadedState)
+  }
+  .....
+  return {
+    dispatch,
+    subscribe,
+    getState,
+  }
+}
+```
+从这里可以推断出以下几点信息：
+- 1.`createStore`的返回值一定是个 `store` 对象，包含`dispatch`，`subscribe`，`getState`。那么`return enhancer(createStore)(reducer, preloadedState)`结果一定是返回一个`store`对象
+- 2.`applyMiddleware()` 执行返回一个函数 `enhancer`
+- 3.`enhancer`这个函数接受 `createStore` 作为参数，并返回一个函数，暂且称为`F`。
+- 4. 函数 `F` 接受 `reducer` 以及 `preloadedState` 做为参数，并且最终返回一个 `store` 对象。
+- 5.然后我们又知道，`redux` 中间件本质上就是拦截 `store.dispatch` 方法
 
+基于以上几点信息，我们可以反向勾勒出`applyMiddleware`的大致实现
+```js
+const applyMiddleware = (...middlewares) => {
+    return (createStore) => {
+        return (reducer, preloadedState) => {
+            const store = createStore(reducer, preloadedState)
+            const dispatch = (action) => {
+                // todo
+            }
+            return {
+                ...store,
+                dispatch
+            }
+        }
+    }
+}
+```
+剩下的就是如何实现 `dispatch` 方法。从[测试例子](./test/applyMiddleware.js)可以看出，中间件的执行结果有点类似于洋葱圈模型：
+![image](https://github.com/lizuncong/mini-react-redux/blob/master/redux-01.jpg)。
+
+假设只有三个中间件，我们可以很快实现出这个逻辑：
+```js
+const applyMiddleware = (...middlewares) => {
+    return (createStore) => {
+        return (reducer, preloadedState) => {
+            const store = createStore(reducer, preloadedState)
+            const mids = middlewares.map(mid => mid({ getState: store.getState }))
+            const mid1 = mids[0]
+            const mid2 = mids[1]
+            const mid3 = mids[2]
+            const dispatch = (action) => {
+              const chain = mid1(mid2(mid3(store.dispatch)))
+              return chain(action)
+            }
+            return {
+                ...store,
+                dispatch
+            }
+        }
+    }
+}
+```
+
+基于上述，可以使用函数组合的概念使得这个函数可以支持无限个中间件
+```js
+const applyMiddleware = (...middlewares) => {
+    return (createStore) => {
+        return (reducer, preloadedState) => {
+            const store = createStore(reducer, preloadedState)
+            const mids = middlewares.map(mid => mid({ getState: store.getState }))
+            const dispatch = (action) => {
+              const chain = mids.reverse().reduce((arg, f) => { return f(arg)}, store.dispatch)
+              return chain(action)
+            }
+            return {
+                ...store,
+                dispatch
+            }
+        }
+    }
+}
+```
+
+再换种更直观的方式：
+```js
+const applyMiddleware = (...middlewares) => {
+    return (createStore) => {
+        return (reducer, preloadedState) => {
+            const store = createStore(reducer, preloadedState)
+            const mids = middlewares.map(mid => mid({ getState: store.getState }))
+            const dispatch = (action) => {
+                return next(0)(action)
+                function next(i){
+                    if(i === mids.length) return store.dispatch;
+                    const mid = mids[i]
+                    return mid(next(i + 1))
+                }
+            }
+            return {
+                ...store,
+                dispatch
+            }
+        }
+    }
+}
+```
