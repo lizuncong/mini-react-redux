@@ -160,7 +160,7 @@ const createStore = (reducer, preloadedState, enhancer) => {
 - 1.`createStore`的返回值一定是个 `store` 对象，包含`dispatch`，`subscribe`，`getState`。那么`return enhancer(createStore)(reducer, preloadedState)`结果一定是返回一个`store`对象
 - 2.`applyMiddleware()` 执行返回一个函数 `enhancer`
 - 3.`enhancer`这个函数接受 `createStore` 作为参数，并返回一个函数，暂且称为`F`。
-- 4. 函数 `F` 接受 `reducer` 以及 `preloadedState` 做为参数，并且最终返回一个 `store` 对象。
+- 4.函数 `F` 接受 `reducer` 以及 `preloadedState` 做为参数，并且最终返回一个 `store` 对象。
 - 5.然后我们又知道，`redux` 中间件本质上就是拦截 `store.dispatch` 方法
 
 基于以上几点信息，我们可以反向勾勒出`applyMiddleware`的大致实现
