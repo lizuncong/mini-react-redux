@@ -1,46 +1,28 @@
-import React, { Component, useState } from 'react';
-import ReactDOM, { render } from 'react-dom';
+import React, { useState } from 'react';
+import { connect } from 'react-redux'
 
-const ThemeContext = React.createContext('light');
+const App = ({ count, increment, decrement}) => {
+  return (
+      <div>
+        count: {count}
+        <div>
+          <button onClick={increment}>increment</button>
+          <button onClick={decrement}>decrement</button>
+        </div>
+      </div>
+  )
+}
 
-class Header extends Component{
-  render(){
-    console.log('header...', this.context)
-    return (
-        <ThemeContext.Consumer>
-          {
-            value => {
-              return (
-                  <div>
-                    consumer: {value}
-                  </div>
-              )
-            }
-          }
-        </ThemeContext.Consumer>
-    )
+const mapStateToProps = (state, ownProps) => ({
+  count: state.value + ownProps.step,
+})
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    increment: () => dispatch({ type: 'counter/incremented' }),
+    decrement: () => dispatch({ type: 'counter/decremented' }),
   }
 }
 
-Header.contextType = ThemeContext
-
-
-export default class App extends Component{
-  constructor(props){
-    super(props);
-  }
-
-  render(){
-    return (
-        <ThemeContext.Provider value="dark">
-          <Header />
-        </ThemeContext.Provider>
-    );
-  }
-}
-
-
-
-const root = document.getElementById('root');
-render(<App />, root)
+export default connect(mapStateToProps, mapDispatchToProps)(App)
 
