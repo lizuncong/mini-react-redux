@@ -7,15 +7,19 @@ import Context from './Context'
  * */
 const Connect = (mapStateToProps, mapDispatchToProps) => {
   return function wrapWithConnect(WrappedComponent) {
-    const Connect = React.memo((props) => {
+    // 返回来的组件丢失了WrappedComponent的静态属性，因此理论上是要将WrappedComponent的静态
+    // 属性重新挂到返回的组件上的
+    return React.memo((props) => {
       const contextValue = useContext(Context)
       const store = contextValue.store
+      const state = store.getState()
+      const stateProps = mapStateToProps(state, props)
+      const dispatchProps = mapDispatchToProps(store.dispatch, props)
+      const mergeProps = { ...ownProps, ...stateProps, ...dispatchProps }
       return (
-          <div>hah</div>
+          <WrappedComponent {...mergeProps}/>
       )
     })
-
-    return Connect
   }
 }
 
