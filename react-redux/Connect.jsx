@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect } from 'react'
+import React, { useContext, useRef, useLayoutEffect } from 'react'
 import Context from './Context'
 
 /**
@@ -22,9 +22,25 @@ const Connect = (mapStateToProps, mapDispatchToProps) => {
       const dispatchProps = mapDispatchToProps(store.dispatch, props)
       const mergeProps = { ...props, ...stateProps, ...dispatchProps }
       // 4.监听状态
+      const lastChildProps = useRef();
+      const lastWrapperProps = useRef(props);
+      const childPropsFromStoreUpdate = useRef();
+      useLayoutEffect(() => {
+        // We want to capture the wrapper props and child props we used for later comparisons
+        // lastWrapperProps.current = wrapperProps;
+        // lastChildProps.current = actualChildProps;
+        // renderIsScheduled.current = false; // If the render was from a store update, clear out that reference and cascade the subscriber update
+
+        // if (childPropsFromStoreUpdate.current) {
+        //   childPropsFromStoreUpdate.current = null;
+        //   notifyNestedSubs();
+        // }
+        lastWrapperProps.current = props;
+        lastChildProps.current = mergeProps;
+      })
       useLayoutEffect(() => {
         if(!mapStateToProps) return;
-      }, [mapStateToProps])
+      }, [store, subscription, childPropsSelector])
       return (
           <WrappedComponent {...mergeProps}/>
       )
