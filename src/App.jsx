@@ -1,28 +1,15 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux'
-
-const App = ({ count, increment, decrement}) => {
+import React from 'react';
+import Counter from './Counter';
+import Button from './Button';
+const App = () => {
+  console.log('App=====')
   return (
       <div>
-        count: {count}
-        <div>
-          <button onClick={increment}>increment</button>
-          <button onClick={decrement}>decrement</button>
-        </div>
+        <Button step={1} />
+        <Counter /> 
       </div>
   )
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  count: state.value + ownProps.step,
-})
 
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-    increment: () => dispatch({ type: 'counter/incremented' }),
-    decrement: () => dispatch({ type: 'counter/decremented' }),
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App)
-
+export default App

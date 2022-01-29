@@ -21,7 +21,8 @@ module.exports = {
         test: /\.jsx?$/,
         include: [
             path.resolve(__dirname, '../src'),
-            path.resolve(__dirname, '../lib'),
+            path.resolve(__dirname, '../redux'),
+            path.resolve(__dirname, '../react-redux'),
         ],
         use: [
           {
@@ -35,6 +36,9 @@ module.exports = {
                   {
                     useBuiltIns: 'usage',
                     corejs:  3 ,
+                    targets: {
+                      chrome: '95'
+                    }
                   },
                 ],
                 '@babel/preset-react',

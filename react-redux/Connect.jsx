@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useLayoutEffect } from 'react'
 import Context from './Context'
 
 /**
@@ -11,11 +11,20 @@ const Connect = (mapStateToProps, mapDispatchToProps) => {
     // 属性重新挂到返回的组件上的
     return React.memo((props) => {
       const contextValue = useContext(Context)
+      console.log('useContext====', contextValue)
       const store = contextValue.store
+      // 1.创建subscription todo 
+      // 2.创建 useReducers ？用来更新组件？todo
+
+      // 3.计算actualChildProps
       const state = store.getState()
       const stateProps = mapStateToProps(state, props)
       const dispatchProps = mapDispatchToProps(store.dispatch, props)
-      const mergeProps = { ...ownProps, ...stateProps, ...dispatchProps }
+      const mergeProps = { ...props, ...stateProps, ...dispatchProps }
+      // 4.监听状态
+      useLayoutEffect(() => {
+        if(!mapStateToProps) return;
+      }, [mapStateToProps])
       return (
           <WrappedComponent {...mergeProps}/>
       )

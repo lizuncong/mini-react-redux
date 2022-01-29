@@ -249,3 +249,32 @@ const applyMiddleware = (...middlewares) => {
     }
 }
 ```
+
+
+#### Context.Provider
+```javascript
+<MyContext.Provider value={/* 某个值 */}>
+```
+`Provider` 接收一个 `value` 属性。***当 `value` 变化时，所有订阅的组件都会强制刷新，不受限于 `shouldComponentUpdate`***。也就是说，只要 `Provider` 的`value`发生改变，那么react就一定会从上至下重新渲染
+
+但是在 `react-redux` 的场景中(如下：)，`store` 的值理论上是不会发生改变的，因为`store`是由`redux.createStore`创建出来的固定的一个引用。***那 `react-redux` 是如何监听状态变化并更新组件的？***
+```jsx
+const Root = () => {
+    console.log('Root....')
+    return (
+        <Provider store={store}>
+            <App step={2} />
+        </Provider>
+    )
+}
+ReactDOM.render(
+    <Root />,
+    document.getElementById('root')
+)
+```
+
+#### 关于react redux状态订阅
+react redux状态更新需要注意几点
+- 更新state并不会导致整个react应用从上到下重复渲染，因为Provider的store根本没有发生改变。因此任何使用useContext或者Consumer订阅context的组件也不会自发渲染
+- 如何订阅store.state的值?
+- 当状态发生改变，如何只渲染订阅了某部分state的组件？
