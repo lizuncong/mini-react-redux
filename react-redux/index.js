@@ -5,3 +5,4 @@
 
 export { default as connect} from './Connect';
 export { default as Provider} from './Provider';
+export { default as useSelector} from './hooks/useSelector';
