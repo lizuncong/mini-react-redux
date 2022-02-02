@@ -278,3 +278,8 @@ react redux状态更新需要注意几点
 - 更新state并不会导致整个react应用从上到下重复渲染，因为Provider的store根本没有发生改变。因此任何使用useContext或者Consumer订阅context的组件也不会自发渲染
 - 如何订阅store.state的值?
 - 当状态发生改变，如何只渲染订阅了某部分state的组件？
+- react redux中，由于Provider的store根本没有发生改变，因此使用useContext或者Consumer订阅的Connect高阶组件理论上不会因为Provider的value更新而重渲染。
+  - 当组件的props发生改变时，也会根据store.state以及props重新计算组件的props
+  - Connect组件调用store.subscribe监听store.state状态更新，如果发生改变，则Connect组件会判断状态是否发生改变，发生改变才重新渲染，没改变则不渲染
+  - 当调用store.dispatch时，整个store.state引用都发生改变，因此connect需要重新执行mapStateToProps逻辑，并使用浅比较判断connect订阅的状态是否发生改变，如果发生改变
+  则触发重渲染，否则不渲染

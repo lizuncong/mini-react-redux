@@ -3,7 +3,7 @@ import { connect } from '../react-redux'
 // import { useSelector } from '../react-redux'
 const Counter = ({ number }) => {
   // const state = useSelector(state => state)
-  console.log('counter====', number);
+  console.log('counter====', '计数器', number);
   return (
       <div>
         计数器：{number}
