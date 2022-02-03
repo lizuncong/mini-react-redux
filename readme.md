@@ -1,6 +1,14 @@
 ### 目录划分
 - redux目录。该目录下是手写redux源码实现的。对应的官方Redux版本：4.0.0
+  + applyMiddleware
+  + combineReducers
+  + createStore
 - react-redux目录。该目录是手写react redux源码实现的。对应的官方React Redux版本：7.2.6
+  + Connect
+  + Context
+  + Provider
+  + useSelector
+  + useDispatch
 
 ### React共享数据需要解决的问题
 - 如何在组件之间共享数据，而不用通过组件树逐层传递props
@@ -274,12 +282,17 @@ ReactDOM.render(
 ```
 
 #### 关于react redux状态订阅
-react redux状态更新需要注意几点
-- 更新state并不会导致整个react应用从上到下重复渲染，因为Provider的store根本没有发生改变。因此任何使用useContext或者Consumer订阅context的组件也不会自发渲染
-- 如何订阅store.state的值?
-- 当状态发生改变，如何只渲染订阅了某部分state的组件？
-- react redux中，由于Provider的store根本没有发生改变，因此使用useContext或者Consumer订阅的Connect高阶组件理论上不会因为Provider的value更新而重渲染。
-  - 当组件的props发生改变时，也会根据store.state以及props重新计算组件的props
-  - Connect组件调用store.subscribe监听store.state状态更新，如果发生改变，则Connect组件会判断状态是否发生改变，发生改变才重新渲染，没改变则不渲染
-  - 当调用store.dispatch时，整个store.state引用都发生改变，因此connect需要重新执行mapStateToProps逻辑，并使用浅比较判断connect订阅的状态是否发生改变，如果发生改变
-  则触发重渲染，否则不渲染
+`react redux` 状态更新需要注意几点
+- `Provider`的`store`由于在创建初期引用就已经保持不变，因此理论上Provider的store在整个应用声明周期内都不会发生改变，也就不会触发订阅的组件重新渲染
+```jsx
+ReactDOM.render(
+  <Provider store={store}>
+    <App step={2} />
+  </Provider>,
+  document.getElementById('root')
+)
+```
+- 通过`dispatch({ type: 'counter/decrementedNum' })`触发 `redux` 状态更新，改变的是 `store.state`，而不是`store` 自身，自然也不会导致`react` 整个应用自上而下重渲染
+- `react redux`通过`Connect`组件以及`useSelector`钩子使用`store.subscribe(checkForUpdates)`订阅`store.state`状态更新
+  + `Connect(mapStateToProps, mapDispatchToProps)(Button)`。在`checkForUpdates`中会重新执行`mapStateToProps`、`mapDispatchToProps`方法并且使用**浅比较**比较子组件，比如`Button`订阅的状态是否发生改变，如果发生改变，则手动触发`Button`组件重新渲染
+  + `const selector = state => state.number; const state = useSelector(selector)`。在`checkForUpdates`会重新执行`selector`方法并使用**浅比较**比较状态是否发生改变，如果发生改变则触发组件重新渲染

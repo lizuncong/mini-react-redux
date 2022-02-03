@@ -23,7 +23,7 @@ const Connect = (mapStateToProps, mapDispatchToProps = () => {}) => {
         return childPropsSelectorFactory(mapStateToProps, mapDispatchToProps, store.dispatch)
       }, [])
 
-      // 1.创建subscription todo 
+      // 1.创建subscription
       // 2.创建 useReducers用来触发子组件重新渲染
       const [[previousStateUpdateResult], dispatch] = useReducer(storeStateUpdatesReducer, INITIAL_STATE)
       const lastChildProps = useRef();
