@@ -26,6 +26,7 @@ const childPropsSelectorFactory = (mapStateToProps, mapDispatchToProps, dispatch
   let mergedProps;
   return (nextState, nextOwnProps) => {
    
+    // props发生改变，则子组件必须重新渲染，因此这里计算的stateProps就没必要再进行浅比较了
     function handleNewProps() {
       stateProps = mapStateToProps(state, ownProps);
       dispatchProps = mapDispatchToProps(dispatch, ownProps);
@@ -33,6 +34,7 @@ const childPropsSelectorFactory = (mapStateToProps, mapDispatchToProps, dispatch
       return mergedProps;
     }
   
+    //如果是通过dispatch导致的状态更新，则计算的nextStateProps需要进行浅比较，以决定是否需要手动触发组件重新渲染
     function handleNewState() {
       const nextStateProps = mapStateToProps(state, ownProps);
       const statePropsChanged = !shallowEqual(nextStateProps, stateProps);
